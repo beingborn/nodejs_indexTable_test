@@ -3,12 +3,14 @@
     "id": 1,
     "title": "아자추",
     "url": "login.html",
+    "body": "(20260120) 이런일이 있었어요",
     "status": "true"
   },
   {
     "id": 2,
     "title": "메인",
     "url": "main.html",
-    "status": "true"
+    "body": "(20260120) 저런일이 있었어요",
+    "status": "false"
   }
 ]
