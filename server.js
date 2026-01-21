@@ -15,24 +15,27 @@ app.use(cors());
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: false }))
 
-app.get('/', (req, res) => {
-    res.send('안녕하세요.')
+app.post('/', (req, res) => {
+    res.send('서버가 열려있습니다.')
 })
 
 app.listen(port, () => {
     console.log(`서버가 ${port}에서 실행중입니다.`)
 })
 
-// 완료 여부 체크
-app.post("/update-status", function(req, res) {
+// Update Info
+app.post("/update-info", function(req, res) {
     var data = req.body;
-    var {id, status} = data;
-    var parseStatus = status; 
-    
+    var {id, title, url, body, status} = data;
+    var parseStatus = status;
+
     for (let i = 0; i < file.length; i++) {
         if (file[i].id == id) {
+            file[i].title = title;
+            file[i].url = url;
+            file[i].body = body;
             file[i].status = parseStatus;
-
+            
             fs.writeFile(fileName, JSON.stringify(file, null, 2), function writeJSON(err) {
             if (err) {
                 console.log(err);
@@ -43,3 +46,4 @@ app.post("/update-status", function(req, res) {
         }
     }
 })
+

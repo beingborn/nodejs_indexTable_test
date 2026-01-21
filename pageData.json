@@ -1,16 +1,16 @@
 [
   {
     "id": 1,
-    "title": "아자추",
+    "title": "인증 > 로그인",
     "url": "login.html",
-    "body": "(20260120) 이런일이 있었어요",
+    "body": "(20260121) 이런일을 겪으셨다니요..",
     "status": "true"
   },
   {
     "id": 2,
-    "title": "메인",
+    "title": "메인화면",
     "url": "main.html",
-    "body": "(20260120) 저런일이 있었어요",
-    "status": "false"
+    "body": "(20260120) 저런일이 있었어요. 입니다",
+    "status": "true"
   }
 ]
