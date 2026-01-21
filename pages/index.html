@@ -23,6 +23,10 @@
             height: 100%;
         }
 
+        .view-mode, .edit-mode {
+            white-space: pre-wrap;
+        }
+
         #wrap {
             min-height: 100vh;
             height: 100%;
@@ -105,7 +109,11 @@
         }
 
         textarea {
+            font-size: 14px!important;
+            height: auto;
             resize: none;
+            overflow-y: hidden;
+            min-height: 50px!important;
         }
 
         table tr:hover > td {
@@ -182,19 +190,19 @@
                     <ul class="d-flex align-items-center gap-3 list-unstyled">
                         <li>
                             <strong>총 페이지</strong>
-                            <span>33</span>
+                            <span id="total"></span>
                         </li>
                         <li>
                             <strong>완료 페이지</strong>
-                            <span>26</span>
+                            <span id="done"></span>
                         </li>
                         <li>
                             <strong>잔여 페이지</strong>
-                            <span>7</span>
+                            <span id="remain"></span>
                         </li>
                     </ul>
                     <div class="progress">
-                        <div class="progress-bar" role="progressbar" style="width: 80%;" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100">80%</div>
+                        <div class="progress-bar" id="progress" role="progressbar" aria-valuenow="" aria-valuemin="0" aria-valuemax="100"></div>
                     </div>
                 </div>
             </div>
@@ -207,6 +215,29 @@
     <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
     <script>
         $(function(){
+            function countPagesData(data){
+                const total = data.length;  
+                
+                if (total === 0) return;
+                let done = 0;
+
+                data.forEach((page, index) => {
+                    if (page.status == "true") {
+                        done++;
+                    }
+                })
+
+                let remain = total - done;
+                let donePercent = Math.round((done / total) * 100);
+
+                $('#total').text(total);
+                $('#done').text(done);
+                $('#remain').text(remain);
+
+                $('#progress').css('width', donePercent + '%');
+                $('#progress').attr('aria-valuenow', donePercent);
+                $('#progress').text(donePercent + '%');
+            }
 
             function getPagesData() {
                 $.getJSON('../pageData.json', function(data) {
@@ -246,10 +277,12 @@
                         `);
 
                         // 5. 비고 (Textarea 토글)
+                        const pageBodyStr = page.body.split('\n').join("<br/>")
+
                         tr.append(`
                             <td data-col="body">
-                                <p class="text-muted view-mode" style="margin-bottom:0;">${page.body || ""}</p>
-                                <textarea id="${'textarea-' + page.id}" class="form-control edit-mode" style="display:none;" rows="4">${page.body || ""}</textarea>
+                                <p class="text-muted view-mode" style="margin-bottom:0;">${pageBodyStr || ""}</p>
+                                <textarea id="${'textarea-' + page.id}" class="form-control edit-mode" style="display:none;">${page.body || ""}</textarea>
                             </td>
                         `);
 
@@ -267,6 +300,8 @@
                         tr.append(actionHtml);
 
                         tbody.append(tr);
+
+                        countPagesData(data);
                     });
                 }).fail(function() {
                     console.error('JSON 파일을 불러올 수 없습니다.');
@@ -297,7 +332,7 @@
                     }
                 })
             }
-           
+            
             // 수정
             $(document).on('click', '.edit', function(){
                 if (!serverConnect) {
@@ -315,6 +350,8 @@
                 $tr.find('.view-mode').hide();
 
                 $tr.find('input[type="checkbox"]').removeAttr('disabled');
+
+                $tr.find('textarea').keyup();
             })
 
 
@@ -335,10 +372,24 @@
                         
                         $(this).prop('checked', isChecked);
                     }
-                    
-                    const originTxt = $(this).siblings('.view-mode').text();
 
-                    $(this).val(originTxt);
+                    if ($(this).is('input[type="text"]')) {
+                        const originTxt = $(this).siblings('.view-mode').text();
+
+                        $(this).val("");
+                        $(this).val(originTxt);
+                    }
+
+                    if ($(this).is('textarea')) {
+                        const originHtml = $(this).siblings('.view-mode').html();
+
+                        if (originHtml) {
+                            const originTxt = originHtml.replace(/<br\s*\/?>/gi, "\n");
+                            
+                            $(this).val("");
+                            $(this).val(originTxt);
+                        }                        
+                    }            
                 })
 
                 $(this).hide();
@@ -392,6 +443,13 @@
                     return;
                 }
             })
+
+            // TextArea Height
+            $(document).on('keyup', 'textarea', function(){
+                $(this).css('height', 'auto');
+                $(this).height(this.scrollHeight);
+            })
+
         })
     </script>
 </body>
